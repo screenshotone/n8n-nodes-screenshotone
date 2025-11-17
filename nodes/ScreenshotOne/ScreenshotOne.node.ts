@@ -31,9 +31,8 @@ export class ScreenshotOne implements INodeType {
 					{ name: 'Full Page Screenshot', value: 'full_page' },
 					{ name: 'PDF', value: 'pdf' },
 					{ name: 'Record Short Video', value: 'short_video' },
-					{ name: 'Screenshot', value: 'screenshot' },										
+					{ name: 'Screenshot', value: 'screenshot' },
 					{ name: 'Scrolling Screenshot', value: 'scrolling_screenshot' },
-					
 				],
 				noDataExpression: true,
 				required: true,
@@ -90,6 +89,23 @@ export class ScreenshotOne implements INodeType {
 						source: ['markdown'],
 					},
 				},
+			},
+			{
+				displayName: 'Response Type',
+				name: 'response_type',
+				description: 'To get the URL of the rendering result, use the JSON response type',
+				type: 'options',
+				options: [
+					{ name: 'JSON', value: 'json' },
+					{
+						name: 'Binary (By Format)',
+						value: 'by_format',
+						description:
+							'The binary representation of the rendering result as a base64-encoded string',
+					},
+					{ name: 'Empty', value: 'empty' },
+				],
+				default: 'json',
 			},
 			// Screenshot options
 			{
