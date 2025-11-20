@@ -251,6 +251,7 @@ export class ScreenshotOne implements INodeType {
 			const cache = this.getNodeParameter('cache', i, false);
 			const cache_ttl = this.getNodeParameter('cache_ttl', i, 0);
 			const cache_key = this.getNodeParameter('cache_key', i, '');
+			const response_type = this.getNodeParameter('response_type', i, 'json');
 			let data;
 			const cacheParams = cache
 				? {
@@ -267,6 +268,7 @@ export class ScreenshotOne implements INodeType {
 					url,
 					access_key: credentials.access_key,
 					extra: {
+						response_type,
 						format,
 						full_page: full_page ? 'true' : undefined,
 						...cacheParams,
@@ -280,6 +282,7 @@ export class ScreenshotOne implements INodeType {
 					url,
 					access_key: credentials.access_key,
 					extra: {
+						response_type,
 						format: 'pdf',
 						pdf_landscape: pdf_landscape ? 'true' : undefined,
 						pdf_print_background: pdf_print_background ? 'true' : undefined,
@@ -294,6 +297,7 @@ export class ScreenshotOne implements INodeType {
 					url,
 					access_key: credentials.access_key,
 					extra: {
+						response_type,
 						format,
 						full_page: 'true',
 						full_page_scroll: 'true',
@@ -312,6 +316,7 @@ export class ScreenshotOne implements INodeType {
 					url,
 					access_key: credentials.access_key,
 					extra: {
+						response_type,
 						format,
 						scroll_complete: scroll_complete ? 'true' : undefined,
 						duration,
@@ -328,6 +333,7 @@ export class ScreenshotOne implements INodeType {
 					access_key: credentials.access_key,
 					scenario,
 					extra: {
+						response_type,
 						format,
 						duration,
 						...cacheParams,
