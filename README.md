@@ -13,15 +13,18 @@ Check out what [ScreenshotOne customers say about the API](https://screenshotone
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-[Installation](#installation)  
-[Operations](#operations)  
-[Credentials](#credentials)
-[Compatibility](#compatibility)  
-[Usage](#usage)
-[Resources](#resources)  
-[Development](#development)  
-[Version history](#version-history)
-[License](#license)
+- [Installation](#installation)
+- [Operations](#operations)
+- [Credentials](#credentials)
+- [Compatibility](#compatibility)
+- [Usage](#usage)
+- [Resources](#resources)
+- [Development](#development)
+- [Version history](#version-history)
+- [ScreenshotOne](#screenshotone)
+  - [Use cases](#use-cases)
+  - [Customers](#customers)
+- [License](#license)
 
 ## Installation
 
