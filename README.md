@@ -7,6 +7,10 @@
 
 ScreenshotOne is a service that allows you to take screenshots of web pages, generate PDFs, convert HTML or Markdown to images and more.
 
+[![testimonials](./assets/testimonials.png)](https://screenshotone.com/customers/)
+
+Check out what [ScreenshotOne customers say about the API](https://screenshotone.com/customers/) and why it is considered one of the best screenshot APIs.
+
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
 [Installation](#installation)  
@@ -142,6 +146,24 @@ n8n start
 ```
 
 Once the node is linked, you need to only rebuild and restart n8n to see the changes.
+
+## ScreenshotOne
+
+### Use cases
+
+You can find [all the use cases on the ScreenshotOne official website](https://screenshotone.com/use-cases/), including but not limited to:
+
+- [Automating Open Graph image generation](https://screenshotone.com/use-cases/open-graph-images/)
+- [Generating personalized videos](https://screenshotone.com/use-cases/automate-personalized-videos/)
+- [Generating marketing content](https://screenshotone.com/use-cases/generate-advertising-content/)
+
+And [many more](https://screenshotone.com/use-cases/).
+
+### Customers
+
+[![testimonials](./assets/testimonials.png)](https://screenshotone.com/customers/)
+
+Check out what [ScreenshotOne customers say about the API](https://screenshotone.com/customers/) and why it is considered one of the best screenshot APIs.
 
 ## License
 
