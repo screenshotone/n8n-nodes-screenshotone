@@ -1,4 +1,15 @@
-import { INodeType, INodeTypeDescription, NodeConnectionType } from 'n8n-workflow';
+import {
+	IDataObject,
+	IExecuteFunctions,
+	IHttpRequestOptions,
+	IN8nHttpFullResponse,
+	INodeExecutionData,
+	INodeType,
+	INodeTypeDescription,
+	NodeApiError,
+	NodeConnectionType,
+	NodeOperationError,
+} from 'n8n-workflow';
 import { screenshotOneRequest } from '../ScreenshotOneApi';
 
 export class ScreenshotOne implements INodeType {
@@ -241,107 +252,159 @@ export class ScreenshotOne implements INodeType {
 		],
 	};
 
-	async execute(this: any) {
+	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
-		const results = [];
-		const credentials = await this.getCredentials('screenshotOneCredentialsApi');
+		const results: INodeExecutionData[] = [];
+		const requestWithAuthentication = async (
+			requestOptions: IHttpRequestOptions,
+		): Promise<IN8nHttpFullResponse> =>
+			(await this.helpers.httpRequestWithAuthentication.call(
+				this,
+				'screenshotOneCredentialsApi',
+				requestOptions,
+			)) as IN8nHttpFullResponse;
+
 		for (let i = 0; i < items.length; i++) {
-			const operation = this.getNodeParameter('operation', i);
-			const url = this.getNodeParameter('url', i);
-			const cache = this.getNodeParameter('cache', i, false);
-			const cache_ttl = this.getNodeParameter('cache_ttl', i, 0);
-			const cache_key = this.getNodeParameter('cache_key', i, '');
-			const response_type = this.getNodeParameter('response_type', i, 'json');
-			let data;
-			const cacheParams = cache
-				? {
-						cache: cache ? 'true' : undefined,
-						cache_ttl: cache_ttl > 0 ? String(cache_ttl) : undefined,
-						cache_key: cache_key || undefined,
+			try {
+				const operation = this.getNodeParameter('operation', i) as string;
+				const url = this.getNodeParameter('url', i) as string;
+				const cache = this.getNodeParameter('cache', i, false) as boolean;
+				const cacheTtl = this.getNodeParameter('cache_ttl', i, 0) as number;
+				const cacheKey = this.getNodeParameter('cache_key', i, '') as string;
+				const responseType = this.getNodeParameter('response_type', i, 'json') as string;
+				let data: IDataObject | undefined;
+				const cacheParams = cache
+					? {
+						cache: 'true',
+						cache_ttl: cacheTtl > 0 ? String(cacheTtl) : undefined,
+						cache_key: cacheKey || undefined,
 					}
-				: {};
-			if (operation === 'screenshot') {
-				const format = this.getNodeParameter('format', i);
-				const full_page = this.getNodeParameter('full_page', i, false);
-				data = await screenshotOneRequest({
-					endpoint: 'take',
-					url,
-					access_key: credentials.access_key,
-					extra: {
-						response_type,
-						format,
-						full_page: full_page ? 'true' : undefined,
-						...cacheParams,
-					},
-				});
-			} else if (operation === 'pdf') {
-				const pdf_landscape = this.getNodeParameter('pdf_landscape', i, false);
-				const pdf_print_background = this.getNodeParameter('pdf_print_background', i, false);
-				data = await screenshotOneRequest({
-					endpoint: 'take',
-					url,
-					access_key: credentials.access_key,
-					extra: {
-						response_type,
-						format: 'pdf',
-						pdf_landscape: pdf_landscape ? 'true' : undefined,
-						pdf_print_background: pdf_print_background ? 'true' : undefined,
-						...cacheParams,
-					},
-				});
-			} else if (operation === 'full_page') {
-				const format = this.getNodeParameter('format', i);
-				const full_page_scroll_delay = this.getNodeParameter('full_page_scroll_delay', i, 0);
-				data = await screenshotOneRequest({
-					endpoint: 'take',
-					url,
-					access_key: credentials.access_key,
-					extra: {
-						response_type,
-						format,
-						full_page: 'true',
-						full_page_scroll: 'true',
-						full_page_scroll_delay: full_page_scroll_delay
-							? String(full_page_scroll_delay)
-							: undefined,
-						...cacheParams,
-					},
-				});
-			} else if (operation === 'scrolling_screenshot') {
-				const format = this.getNodeParameter('video_format', i, 'mp4');
-				const duration = this.getNodeParameter('duration', i);
-				const scroll_complete = this.getNodeParameter('scroll_complete', i, false);
-				data = await screenshotOneRequest({
-					endpoint: 'take',
-					url,
-					access_key: credentials.access_key,
-					extra: {
-						response_type,
-						format,
-						scroll_complete: scroll_complete ? 'true' : undefined,
-						duration,
-						...cacheParams,
-					},
-				});
-			} else if (operation === 'short_video') {
-				const format = this.getNodeParameter('video_format', i, 'mp4');
-				const scenario = this.getNodeParameter('scenario', i, 'default');
-				const duration = this.getNodeParameter('duration', i);
-				data = await screenshotOneRequest({
-					endpoint: 'animate',
-					url,
-					access_key: credentials.access_key,
-					scenario,
-					extra: {
-						response_type,
-						format,
-						duration,
-						...cacheParams,
-					},
-				});
+					: {};
+
+				if (operation === 'screenshot') {
+					const format = this.getNodeParameter('format', i) as string;
+					const fullPage = this.getNodeParameter('full_page', i, false) as boolean;
+					data = await screenshotOneRequest({
+						endpoint: 'take',
+						url,
+						requestWithAuthentication,
+						extra: {
+							response_type: responseType,
+							format,
+							full_page: fullPage ? 'true' : undefined,
+							...cacheParams,
+						},
+					});
+				} else if (operation === 'pdf') {
+					const pdfLandscape = this.getNodeParameter('pdf_landscape', i, false) as boolean;
+					const pdfPrintBackground = this.getNodeParameter(
+						'pdf_print_background',
+						i,
+						false,
+					) as boolean;
+					data = await screenshotOneRequest({
+						endpoint: 'take',
+						url,
+						requestWithAuthentication,
+						extra: {
+							response_type: responseType,
+							format: 'pdf',
+							pdf_landscape: pdfLandscape ? 'true' : undefined,
+							pdf_print_background: pdfPrintBackground ? 'true' : undefined,
+							...cacheParams,
+						},
+					});
+				} else if (operation === 'full_page') {
+					const format = this.getNodeParameter('format', i) as string;
+					const fullPageScrollDelay = this.getNodeParameter(
+						'full_page_scroll_delay',
+						i,
+						0,
+					) as number;
+					data = await screenshotOneRequest({
+						endpoint: 'take',
+						url,
+						requestWithAuthentication,
+						extra: {
+							response_type: responseType,
+							format,
+							full_page: 'true',
+							full_page_scroll: 'true',
+							full_page_scroll_delay: fullPageScrollDelay
+								? String(fullPageScrollDelay)
+								: undefined,
+							...cacheParams,
+						},
+					});
+				} else if (operation === 'scrolling_screenshot') {
+					const format = this.getNodeParameter('video_format', i, 'mp4') as string;
+					const duration = this.getNodeParameter('duration', i) as number;
+					const scrollComplete = this.getNodeParameter('scroll_complete', i, false) as boolean;
+					data = await screenshotOneRequest({
+						endpoint: 'take',
+						url,
+						requestWithAuthentication,
+						extra: {
+							response_type: responseType,
+							format,
+							scroll_complete: scrollComplete ? 'true' : undefined,
+							duration,
+							...cacheParams,
+						},
+					});
+				} else if (operation === 'short_video') {
+					const format = this.getNodeParameter('video_format', i, 'mp4') as string;
+					const scenario = this.getNodeParameter('scenario', i, 'default') as string;
+					const duration = this.getNodeParameter('duration', i) as number;
+					data = await screenshotOneRequest({
+						endpoint: 'animate',
+						url,
+						scenario,
+						requestWithAuthentication,
+						extra: {
+							response_type: responseType,
+							format,
+							duration,
+							...cacheParams,
+						},
+					});
+				} else {
+					throw new NodeOperationError(
+						this.getNode(),
+						`The operation "${operation}" is not supported`,
+						{ itemIndex: i },
+					);
+				}
+
+				results.push({ json: data || {}, pairedItem: { item: i } });
+			} catch (error) {
+				if (this.continueOnFail()) {
+					results.push({
+						json: { error: getErrorMessage(error) },
+						pairedItem: { item: i },
+					});
+					continue;
+				}
+
+				if (error instanceof NodeApiError || error instanceof NodeOperationError) {
+					throw error;
+				}
+
+				throw new NodeApiError(
+					this.getNode(),
+					{ message: getErrorMessage(error) },
+					{ itemIndex: i },
+				);
 			}
-			results.push({ json: data || {} });
 		}
 		return [results];
 	}
+}
+
+function getErrorMessage(error: unknown): string {
+	if (error instanceof Error) {
+		return error.message;
+	}
+
+	return String(error);
 }
