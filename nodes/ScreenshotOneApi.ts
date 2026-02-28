@@ -4,20 +4,28 @@ type ScreenshotOneRequestWithAuthentication = (
 	requestOptions: IHttpRequestOptions,
 ) => Promise<IN8nHttpFullResponse>;
 
+type ScreenshotOneSource = Partial<Record<'url' | 'html' | 'markdown', string>>;
+
 export async function screenshotOneRequest({
 	endpoint,
-	url,
+	source,
 	scenario,
 	extra = {},
 	requestWithAuthentication,
 }: {
 	endpoint: 'take' | 'animate';
-	url: string;
+	source: ScreenshotOneSource;
 	scenario?: string;
 	extra?: Record<string, unknown>;
 	requestWithAuthentication: ScreenshotOneRequestWithAuthentication;
 }): Promise<Record<string, any>> {
-	const params: Record<string, string> = { url };
+	const params: Record<string, string> = {};
+	for (const [key, value] of Object.entries(source)) {
+		if (value !== undefined && value !== null) {
+			params[key] = String(value);
+		}
+	}
+
 	for (const [key, value] of Object.entries(extra)) {
 		if (value !== undefined && value !== null) {
 			params[key] = String(value);

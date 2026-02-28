@@ -267,7 +267,19 @@ export class ScreenshotOne implements INodeType {
 		for (let i = 0; i < items.length; i++) {
 			try {
 				const operation = this.getNodeParameter('operation', i) as string;
-				const url = this.getNodeParameter('url', i) as string;
+				const source = this.getNodeParameter('source', i, 'url') as 'url' | 'html' | 'markdown';
+				const sourceData: Partial<Record<'url' | 'html' | 'markdown', string>> = {};
+				if (source === 'url') {
+					sourceData.url = this.getNodeParameter('url', i) as string;
+				} else if (source === 'html') {
+					sourceData.html = this.getNodeParameter('html', i) as string;
+				} else if (source === 'markdown') {
+					sourceData.markdown = this.getNodeParameter('markdown', i) as string;
+				} else {
+					throw new NodeOperationError(this.getNode(), `The source "${source}" is not supported`, {
+						itemIndex: i,
+					});
+				}
 				const cache = this.getNodeParameter('cache', i, false) as boolean;
 				const cacheTtl = this.getNodeParameter('cache_ttl', i, 0) as number;
 				const cacheKey = this.getNodeParameter('cache_key', i, '') as string;
@@ -275,10 +287,10 @@ export class ScreenshotOne implements INodeType {
 				let data: IDataObject | undefined;
 				const cacheParams = cache
 					? {
-						cache: 'true',
-						cache_ttl: cacheTtl > 0 ? String(cacheTtl) : undefined,
-						cache_key: cacheKey || undefined,
-					}
+							cache: 'true',
+							cache_ttl: cacheTtl > 0 ? String(cacheTtl) : undefined,
+							cache_key: cacheKey || undefined,
+						}
 					: {};
 
 				if (operation === 'screenshot') {
@@ -286,7 +298,7 @@ export class ScreenshotOne implements INodeType {
 					const fullPage = this.getNodeParameter('full_page', i, false) as boolean;
 					data = await screenshotOneRequest({
 						endpoint: 'take',
-						url,
+						source: sourceData,
 						requestWithAuthentication,
 						extra: {
 							response_type: responseType,
@@ -304,7 +316,7 @@ export class ScreenshotOne implements INodeType {
 					) as boolean;
 					data = await screenshotOneRequest({
 						endpoint: 'take',
-						url,
+						source: sourceData,
 						requestWithAuthentication,
 						extra: {
 							response_type: responseType,
@@ -323,16 +335,14 @@ export class ScreenshotOne implements INodeType {
 					) as number;
 					data = await screenshotOneRequest({
 						endpoint: 'take',
-						url,
+						source: sourceData,
 						requestWithAuthentication,
 						extra: {
 							response_type: responseType,
 							format,
 							full_page: 'true',
 							full_page_scroll: 'true',
-							full_page_scroll_delay: fullPageScrollDelay
-								? String(fullPageScrollDelay)
-								: undefined,
+							full_page_scroll_delay: fullPageScrollDelay ? String(fullPageScrollDelay) : undefined,
 							...cacheParams,
 						},
 					});
@@ -342,7 +352,7 @@ export class ScreenshotOne implements INodeType {
 					const scrollComplete = this.getNodeParameter('scroll_complete', i, false) as boolean;
 					data = await screenshotOneRequest({
 						endpoint: 'take',
-						url,
+						source: sourceData,
 						requestWithAuthentication,
 						extra: {
 							response_type: responseType,
@@ -358,7 +368,7 @@ export class ScreenshotOne implements INodeType {
 					const duration = this.getNodeParameter('duration', i) as number;
 					data = await screenshotOneRequest({
 						endpoint: 'animate',
-						url,
+						source: sourceData,
 						scenario,
 						requestWithAuthentication,
 						extra: {
