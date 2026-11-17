@@ -3,7 +3,7 @@
 ![n8n.io - Workflow Automation](https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-logo.png)
 [![screenshotone.com](https://screenshotone.com/logo.png)](https://screenshotone.com/)
 
-`n8n-nodes-screenshotone` is an n8n community node. It lets you use [ScreenshotOne](https://screenshotone.com/) in your n8n workflows.
+`n8n-nodes-screenshotone` is a verified n8n community node. It lets you use [ScreenshotOne](https://screenshotone.com/) in your n8n workflows.
 
 ScreenshotOne is a service that allows you to take screenshots of web pages, generate PDFs, convert HTML or Markdown to images and more.
 
@@ -179,10 +179,6 @@ And [many more](https://screenshotone.com/use-cases/).
 [![testimonials](./assets/testimonials.png)](https://screenshotone.com/customers/)
 
 Check out what [ScreenshotOne customers say about the API](https://screenshotone.com/customers/) and why it is considered one of the best screenshot APIs.
-
-## License
-
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
 
 ## License
 
