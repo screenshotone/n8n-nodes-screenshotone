@@ -7,7 +7,6 @@ import {
 	INodeType,
 	INodeTypeDescription,
 	NodeApiError,
-	NodeConnectionType,
 	NodeOperationError,
 } from 'n8n-workflow';
 import { screenshotOneRequest } from '../ScreenshotOneApi';
@@ -24,8 +23,8 @@ export class ScreenshotOne implements INodeType {
 		defaults: {
 			name: 'ScreenshotOne',
 		},
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main],
+		inputs: ['main'],
+		outputs: ['main'],
 		usableAsTool: true,
 		credentials: [
 			{
