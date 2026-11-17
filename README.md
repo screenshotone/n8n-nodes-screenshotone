@@ -50,6 +50,16 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 For scrolling screenshots and video check out the [ScreenshotOne documentation](https://screenshotone.com/docs/animated-screenshots/).
 
+### Options
+
+Every operation has an **Options** section with:
+
+- **Proxy**: your own HTTP proxy, e.g. `http://username:password@proxy.example.com:10000` ([proxy](https://screenshotone.com/docs/options/#proxy)).
+- **Proxy Bypass Hosts**: hostnames to load directly instead of through the proxy, to save proxy traffic ([proxy_bypass_hosts](https://screenshotone.com/docs/options/#proxy_bypass_hosts)). Requires **Proxy**.
+- **Fail If Content Contains**: fail the request when the page contains any of these texts, e.g. a login wall ([fail_if_content_contains](https://screenshotone.com/docs/options/#fail_if_content_contains)). Not supported by **Record Short Video**.
+- **Block Cookie Banners** and **Block Banners by Heuristics** ([blocking](https://screenshotone.com/docs/options/#blocking)).
+- **Delay** and **Timeout** in seconds ([delay](https://screenshotone.com/docs/options/#delay), [timeout](https://screenshotone.com/docs/options/#timeout)).
+
 ## Credentials
 
 To use ScreenshotOne node, you will need to authenticate with the ScreenshotOne API.
@@ -112,6 +122,7 @@ Or:
 
 ## Version history
 
+- 0.1.7 - Add proxy, proxy bypass hosts, content checks, banner blocking, delay and timeout options.
 - 0.1.2 - Initial release of the ScreenshotOne node for n8n 🥳
 
 ## Development

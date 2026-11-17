@@ -19,7 +19,7 @@ export async function screenshotOneRequest({
 	extra?: Record<string, unknown>;
 	requestWithAuthentication: ScreenshotOneRequestWithAuthentication;
 }): Promise<Record<string, any>> {
-	const params: Record<string, string> = {};
+	const params: Record<string, string | string[]> = {};
 	for (const [key, value] of Object.entries(source)) {
 		if (value !== undefined && value !== null) {
 			params[key] = String(value);
@@ -27,9 +27,11 @@ export async function screenshotOneRequest({
 	}
 
 	for (const [key, value] of Object.entries(extra)) {
-		if (value !== undefined && value !== null) {
-			params[key] = String(value);
+		if (value === undefined || value === null) {
+			continue;
 		}
+
+		params[key] = Array.isArray(value) ? value.map((item) => String(item)) : String(value);
 	}
 
 	if (endpoint === 'animate' && scenario) {
@@ -40,6 +42,7 @@ export async function screenshotOneRequest({
 		url: `https://api.screenshotone.com/${endpoint}`,
 		method: 'GET',
 		qs: params,
+		arrayFormat: 'repeat',
 		returnFullResponse: true,
 		encoding: 'arraybuffer',
 	});

@@ -249,6 +249,90 @@ export class ScreenshotOne implements INodeType {
 				default: '',
 				description: 'Custom cache key for this request',
 			},
+			{
+				displayName: 'Options',
+				name: 'options',
+				type: 'collection',
+				placeholder: 'Add Option',
+				default: {},
+				options: [
+					{
+						displayName: 'Block Banners by Heuristics',
+						name: 'block_banners_by_heuristics',
+						type: 'boolean',
+						default: false,
+						description:
+							'Whether to hide banners and overlays with heuristics when the regular cookie banner blocking is not enough',
+					},
+					{
+						displayName: 'Block Cookie Banners',
+						name: 'block_cookie_banners',
+						type: 'boolean',
+						default: false,
+						description:
+							'Whether to block cookie banners, GDPR overlays, and other privacy-related notices',
+					},
+					{
+						displayName: 'Delay (Seconds)',
+						name: 'delay',
+						type: 'number',
+						default: 0,
+						typeOptions: {
+							minValue: 0,
+							maxValue: 30,
+						},
+						description: 'How long to wait before rendering, in seconds',
+					},
+					{
+						displayName: 'Fail If Content Contains',
+						name: 'fail_if_content_contains',
+						type: 'string',
+						default: [],
+						typeOptions: {
+							multipleValues: true,
+							multipleValueButtonText: 'Add Text',
+						},
+						description:
+							'Fail the request if the page contains any of these texts (case-insensitive). Failed requests are not counted against the quota. Not supported by Record Short Video.',
+					},
+					{
+						displayName: 'Proxy',
+						name: 'proxy',
+						type: 'string',
+						typeOptions: {
+							password: true,
+						},
+						default: '',
+						placeholder: 'http://username:password@proxy.example.com:10000',
+						description:
+							'Your own HTTP proxy to render through. Overrides the IP country option of ScreenshotOne.',
+					},
+					{
+						displayName: 'Proxy Bypass Hosts',
+						name: 'proxy_bypass_hosts',
+						type: 'string',
+						default: [],
+						typeOptions: {
+							multipleValues: true,
+							multipleValueButtonText: 'Add Host',
+						},
+						placeholder: 'cdn.example.com',
+						description:
+							'Hostname patterns to load directly instead of through the proxy, e.g. *.cdn.example.com. Requires Proxy.',
+					},
+					{
+						displayName: 'Timeout (Seconds)',
+						name: 'timeout',
+						type: 'number',
+						default: 60,
+						typeOptions: {
+							minValue: 1,
+							maxValue: 90,
+						},
+						description: 'When to abort the request if rendering is still not possible, in seconds',
+					},
+				],
+			},
 		],
 	};
 
@@ -292,6 +376,35 @@ export class ScreenshotOne implements INodeType {
 							cache_key: cacheKey || undefined,
 						}
 					: {};
+				const options = this.getNodeParameter('options', i, {}) as RequestOptions;
+				const proxy = (options.proxy ?? '').trim();
+				const proxyBypassHosts = toStringList(options.proxy_bypass_hosts);
+				if (proxyBypassHosts.length > 0 && !proxy) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'The "Proxy Bypass Hosts" option can only be used together with "Proxy"',
+						{ itemIndex: i },
+					);
+				}
+				const failIfContentContains = toStringList(options.fail_if_content_contains);
+				if (operation === 'short_video' && failIfContentContains.length > 0) {
+					throw new NodeOperationError(
+						this.getNode(),
+						'The "Fail If Content Contains" option is not supported by the "Record Short Video" operation',
+						{ itemIndex: i },
+					);
+				}
+				const commonParams = {
+					...cacheParams,
+					proxy: proxy || undefined,
+					proxy_bypass_hosts: proxyBypassHosts.length > 0 ? proxyBypassHosts : undefined,
+					fail_if_content_contains:
+						failIfContentContains.length > 0 ? failIfContentContains : undefined,
+					block_cookie_banners: options.block_cookie_banners ? 'true' : undefined,
+					block_banners_by_heuristics: options.block_banners_by_heuristics ? 'true' : undefined,
+					delay: options.delay ? String(options.delay) : undefined,
+					timeout: options.timeout !== undefined ? String(options.timeout) : undefined,
+				};
 
 				if (operation === 'screenshot') {
 					const format = this.getNodeParameter('format', i) as string;
@@ -304,7 +417,7 @@ export class ScreenshotOne implements INodeType {
 							response_type: responseType,
 							format,
 							full_page: fullPage ? 'true' : undefined,
-							...cacheParams,
+							...commonParams,
 						},
 					});
 				} else if (operation === 'pdf') {
@@ -323,7 +436,7 @@ export class ScreenshotOne implements INodeType {
 							format: 'pdf',
 							pdf_landscape: pdfLandscape ? 'true' : undefined,
 							pdf_print_background: pdfPrintBackground ? 'true' : undefined,
-							...cacheParams,
+							...commonParams,
 						},
 					});
 				} else if (operation === 'full_page') {
@@ -343,7 +456,7 @@ export class ScreenshotOne implements INodeType {
 							full_page: 'true',
 							full_page_scroll: 'true',
 							full_page_scroll_delay: fullPageScrollDelay ? String(fullPageScrollDelay) : undefined,
-							...cacheParams,
+							...commonParams,
 						},
 					});
 				} else if (operation === 'scrolling_screenshot') {
@@ -359,7 +472,7 @@ export class ScreenshotOne implements INodeType {
 							format,
 							scroll_complete: scrollComplete ? 'true' : undefined,
 							duration,
-							...cacheParams,
+							...commonParams,
 						},
 					});
 				} else if (operation === 'short_video') {
@@ -375,7 +488,7 @@ export class ScreenshotOne implements INodeType {
 							response_type: responseType,
 							format,
 							duration,
-							...cacheParams,
+							...commonParams,
 						},
 					});
 				} else {
@@ -409,6 +522,22 @@ export class ScreenshotOne implements INodeType {
 		}
 		return [results];
 	}
+}
+
+type RequestOptions = {
+	block_banners_by_heuristics?: boolean;
+	block_cookie_banners?: boolean;
+	delay?: number;
+	fail_if_content_contains?: string | string[];
+	proxy?: string;
+	proxy_bypass_hosts?: string | string[];
+	timeout?: number;
+};
+
+function toStringList(value: string | string[] | undefined): string[] {
+	const values = Array.isArray(value) ? value : value ? [value] : [];
+
+	return values.map((item) => String(item).trim()).filter((item) => item !== '');
 }
 
 function getErrorMessage(error: unknown): string {
