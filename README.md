@@ -122,6 +122,7 @@ Or:
 
 ## Version history
 
+- 0.1.8 - Pass the n8n verification lint: action labels, subtitle, themed icons, credential icon and n8n error types. Lint now uses n8n's own rules (`n8n-node lint`).
 - 0.1.7 - Add proxy, proxy bypass hosts, content checks, banner blocking, delay and timeout options.
 - 0.1.2 - Initial release of the ScreenshotOne node for n8n 🥳
 

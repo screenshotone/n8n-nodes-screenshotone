@@ -6,7 +6,9 @@ import {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	INode,
 	NodeApiError,
+	NodeConnectionTypes,
 	NodeOperationError,
 } from 'n8n-workflow';
 import { screenshotOneRequest } from '../ScreenshotOneApi';
@@ -16,15 +18,16 @@ export class ScreenshotOne implements INodeType {
 		displayName: 'ScreenshotOne',
 		name: 'screenshotOne',
 		group: ['transform'],
-		icon: 'file:screenshotone.svg',
+		icon: { light: 'file:screenshotone.svg', dark: 'file:screenshotone.dark.svg' },
 		version: 1,
+		subtitle: '={{$parameter["operation"]}}',
 		description:
 			'Render PDFs, screenshots, scrolling screenshots, and short videos using ScreenshotOne',
 		defaults: {
 			name: 'ScreenshotOne',
 		},
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		usableAsTool: true,
 		credentials: [
 			{
@@ -38,11 +41,19 @@ export class ScreenshotOne implements INodeType {
 				name: 'operation',
 				type: 'options',
 				options: [
-					{ name: 'Full Page Screenshot', value: 'full_page' },
-					{ name: 'PDF', value: 'pdf' },
-					{ name: 'Record Short Video', value: 'short_video' },
-					{ name: 'Screenshot', value: 'screenshot' },
-					{ name: 'Scrolling Screenshot', value: 'scrolling_screenshot' },
+					{
+						name: 'Full Page Screenshot',
+						value: 'full_page',
+						action: 'Take a full page screenshot',
+					},
+					{ name: 'PDF', value: 'pdf', action: 'Render a PDF' },
+					{ name: 'Record Short Video', value: 'short_video', action: 'Record a short video' },
+					{ name: 'Screenshot', value: 'screenshot', action: 'Take a screenshot' },
+					{
+						name: 'Scrolling Screenshot',
+						value: 'scrolling_screenshot',
+						action: 'Record a scrolling screenshot',
+					},
 				],
 				noDataExpression: true,
 				required: true,
@@ -508,15 +519,7 @@ export class ScreenshotOne implements INodeType {
 					continue;
 				}
 
-				if (error instanceof NodeApiError || error instanceof NodeOperationError) {
-					throw error;
-				}
-
-				throw new NodeApiError(
-					this.getNode(),
-					{ message: getErrorMessage(error) },
-					{ itemIndex: i },
-				);
+				throw toNodeError(this.getNode(), error, i);
 			}
 		}
 		return [results];
@@ -537,6 +540,18 @@ function toStringList(value: string | string[] | undefined): string[] {
 	const values = Array.isArray(value) ? value : value ? [value] : [];
 
 	return values.map((item) => String(item).trim()).filter((item) => item !== '');
+}
+
+function toNodeError(
+	node: INode,
+	error: unknown,
+	itemIndex: number,
+): NodeApiError | NodeOperationError {
+	if (error instanceof NodeApiError || error instanceof NodeOperationError) {
+		return error;
+	}
+
+	return new NodeApiError(node, { message: getErrorMessage(error) }, { itemIndex });
 }
 
 function getErrorMessage(error: unknown): string {

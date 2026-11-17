@@ -18,7 +18,7 @@ export async function screenshotOneRequest({
 	scenario?: string;
 	extra?: Record<string, unknown>;
 	requestWithAuthentication: ScreenshotOneRequestWithAuthentication;
-}): Promise<Record<string, any>> {
+}): Promise<IDataObject> {
 	const params: Record<string, string | string[]> = {};
 	for (const [key, value] of Object.entries(source)) {
 		if (value !== undefined && value !== null) {
@@ -50,7 +50,7 @@ export async function screenshotOneRequest({
 	const body = response.body;
 
 	let type: 'json' | 'text' | 'base64';
-	let data: any;
+	let data: IDataObject | string;
 	if (contentType.includes('application/json')) {
 		data = parseJsonBody(body);
 		type = 'json';

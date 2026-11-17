@@ -1,5 +1,6 @@
 import {
 	IAuthenticateGeneric,
+	Icon,
 	ICredentialTestRequest,
 	ICredentialType,
 	INodeProperties,
@@ -8,6 +9,11 @@ import {
 export class ScreenshotOneCredentialsApi implements ICredentialType {
 	name = 'screenshotOneCredentialsApi';
 	displayName = 'ScreenshotOne Credentials API';
+
+	icon: Icon = {
+		light: 'file:../nodes/ScreenshotOne/screenshotone.svg',
+		dark: 'file:../nodes/ScreenshotOne/screenshotone.dark.svg',
+	};
 
 	documentationUrl = 'https://screenshotone.com/docs/';
 

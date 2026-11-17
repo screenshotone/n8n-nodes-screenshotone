@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-screenshotone",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "ScreenshotOne node for n8n to take screenshots of web pages, scrolling screenshots, render PDFs, and more.",
   "keywords": [
     "n8n-community-node-package"
@@ -23,9 +23,9 @@
     "build": "npx rimraf dist && tsc && gulp build:icons",
     "dev": "tsc --watch",
     "format": "prettier nodes credentials --write",
-    "lint": "eslint nodes credentials package.json",
-    "lintfix": "eslint nodes credentials package.json --fix",
-    "prepublishOnly": "n8n-node prerelease && npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json",
+    "lint": "n8n-node lint",
+    "lintfix": "n8n-node lint --fix",
+    "prepublishOnly": "n8n-node prerelease",
     "release": "n8n-node release"
   },
   "files": [
@@ -42,9 +42,7 @@
   },
   "devDependencies": {
     "@n8n/node-cli": "0.55.4",
-    "@typescript-eslint/parser": "~8.32.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-n8n-nodes-base": "^1.16.3",
+    "eslint": "9.29.0",
     "gulp": "^5.0.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.2"
